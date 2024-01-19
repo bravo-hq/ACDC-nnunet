@@ -529,12 +529,12 @@ class NetworkTrainer_acdc(object):
 
         if not self.was_initialized:
             self.initialize(True)
-        
-        if len(self.all_val_losses)==0:
-            self.best_loss=1000
+
+        if len(self.all_val_losses) == 0:
+            self.best_loss = 1000
         else:
-            self.best_loss=self.all_val_losses[-1]
-                    
+            self.best_loss = self.all_val_losses[-1]
+
         while self.epoch < self.max_num_epochs:
             self.print_to_log_file("\nepoch: ", self.epoch)
             epoch_start_time = time()
@@ -590,7 +590,7 @@ class NetworkTrainer_acdc(object):
             self.update_train_loss_MA()  # needed for lr scheduler and stopping of training
 
             continue_training = self.on_epoch_end()
-            
+
             epoch_end_time = time()
 
             if not continue_training:
@@ -748,32 +748,38 @@ class NetworkTrainer_acdc(object):
         self.plot_progress()
 
         self.maybe_save_checkpoint()
-        
+
         self.save_best_val_loss_model()
-    
+
         self.update_eval_criterion_MA()
         self.maybe_update_lr()
         continue_training = self.manage_patience()
         return continue_training
-    
+
     def save_best_val_loss_model(self):
         # save best loss model
-        if self.all_val_losses[-1]<self.best_loss:
-            self.best_loss=self.all_val_losses[-1]
+        if self.all_val_losses[-1] < self.best_loss:
+            self.best_loss = self.all_val_losses[-1]
             # remove old best loss model
-            if self.epoch<700:
-                path=glob(join(self.output_folder, f"model_ep_*_best_val_loss_*.model"))
-                path_pkl=glob(join(self.output_folder, f"model_ep_*_best_val_loss_*.pkl"))
+            if self.epoch < 700:
+                path = glob(
+                    join(self.output_folder, f"model_ep_*_best_val_loss_*.model")
+                )
+                path_pkl = glob(
+                    join(self.output_folder, f"model_ep_*_best_val_loss_*.pkl")
+                )
                 for p in path:
                     os.remove(p)
                 for p in path_pkl:
                     os.remove(p)
-                    
+
             self.save_checkpoint(
-                join(self.output_folder, f"model_ep_{(self.epoch+1):03d}_best_val_loss_{self.all_val_losses[-1]:.5f}.model")
+                join(
+                    self.output_folder,
+                    f"model_ep_{(self.epoch+1):03d}_best_val_loss_{self.all_val_losses[-1]:.5f}.model",
+                )
             )
             self.print_to_log_file("best val loss model saved!")
-
 
     def update_train_loss_MA(self):
         if self.train_loss_MA is None:
