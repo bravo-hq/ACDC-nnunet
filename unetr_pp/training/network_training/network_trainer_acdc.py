@@ -770,7 +770,7 @@ class NetworkTrainer_acdc(object):
                     os.remove(p)
                     
             self.save_checkpoint(
-                join(self.output_folder, f"model_ep_{(self.epoch+1):03.0d}_best_val_loss_{self.all_val_losses[-1]:.5f}.model")
+                join(self.output_folder, f"model_ep_{(self.epoch+1):03d}_best_val_loss_{self.all_val_losses[-1]:.5f}.model")
             )
             self.print_to_log_file("best val loss model saved!")
 
