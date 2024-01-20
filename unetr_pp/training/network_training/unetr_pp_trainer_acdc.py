@@ -39,7 +39,7 @@ from torch.cuda.amp import autocast
 from unetr_pp.training.learning_rate.poly_lr import poly_lr
 from batchgenerators.utilities.file_and_folder_operations import *
 from unetr_pp.network_architecture.acdc.unetr_pp_acdc import UNETR_PP
-from unetr_pp.network_architecture.acdc.lhunet.models.v7 import LHUNet as MODEL
+from unetr_pp.network_architecture.acdc.lhunet.models.v8 import LHUNet as MODEL
 from fvcore.nn import FlopCountAnalysis
 
 
@@ -72,7 +72,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 1e-2
+        self.initial_lr = 7e-3  ####################################### YOUSEF HERE
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
@@ -96,7 +96,9 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         self.embedding_patch_size = [1, 4, 4]
         self.window_size = [[3, 5, 5], [3, 5, 5], [7, 10, 10], [3, 5, 5]]
         self.down_stride = [[1, 4, 4], [1, 8, 8], [2, 16, 16], [4, 32, 32]]
-        self.deep_supervision = False
+        self.deep_supervision = (
+            True  ####################################### YOUSEF HERE
+        )
 
     def initialize(self, training=True, force_load_plans=False):
         """
@@ -118,10 +120,10 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             self.crop_size = np.array([16, 160, 160])
 
             self.plans["plans_per_stage"][self.stage]["pool_op_kernel_sizes"] = [
-                [1, 4, 4],
+                [1, 2, 2],
                 [2, 2, 2],
                 [2, 2, 2],
-            ]
+            ]  ####################################### YOUSEF HERE
             self.process_plans(self.plans)
 
             self.setup_DA_params()
@@ -224,7 +226,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             spatial_shapes=self.crop_size,
             in_channels=self.input_channels,
             out_channels=self.num_classes,
-            do_ds=False,
+            do_ds=self.deep_supervision,
             # encoder params
             cnn_kernel_sizes=[5, 3],
             cnn_features=[16, 32],
