@@ -77,6 +77,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         self.ds_loss_weights = None
         self.pin_memory = True
         self.load_pretrain_weight = False
+        self.fine_tune = False ####################################### YOUSEF HERE
 
         self.load_plans_file()
 
@@ -283,6 +284,14 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         if torch.cuda.is_available():
             self.network.cuda()
         self.network.inference_apply_nonlin = softmax_helper
+        
+        if self.fine_tune:
+            print("Loading pretrain weight")
+            pre_trained_path = "/cabinet/yousef/ACDC-nnunet/output_acdc_lhunet_res_coll_batch_8/unetr_pp/3d_fullres/Task001_ACDC/unetr_pp_trainer_acdc__unetr_pp_Plansv2.1/fold_0/originals/model_final_checkpoint.model"
+            saved_model = torch.load(pre_trained_path, map_location=torch.device("cpu"))
+            self.network.load_state_dict(saved_model["state_dict"])
+            print("Done loading pretrain weight")
+        
         # Print the network parameters & Flops
         n_parameters = sum(
             p.numel() for p in self.network.parameters() if p.requires_grad
