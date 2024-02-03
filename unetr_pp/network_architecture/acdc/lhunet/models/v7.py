@@ -15,7 +15,6 @@ __all__ = ["LHUNet"]
 Concatenating skips
 Out with ViT
 """
-
 from unetr_pp.network_architecture.neural_network import SegmentationNetwork
 
 
@@ -338,7 +337,7 @@ class LHUNet(SegmentationNetwork):
 
         self.num_classes = out_channels
 
-    #         self.apply(self._init_weights)
+        # self.apply(self._init_weights)
 
     def forward(self, x):
         in_x = x.clone()
