@@ -39,7 +39,7 @@ from torch.cuda.amp import autocast
 from unetr_pp.training.learning_rate.poly_lr import poly_lr
 from batchgenerators.utilities.file_and_folder_operations import *
 from unetr_pp.network_architecture.acdc.unetr_pp_acdc import UNETR_PP
-from unetr_pp.network_architecture.acdc.lhunet.models.v8 import LHUNet as MODEL
+from unetr_pp.network_architecture.acdc.lhunet.models.v7 import LHUNet as MODEL
 from fvcore.nn import FlopCountAnalysis
 
 
@@ -72,7 +72,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 7e-3  ####################################### YOUSEF HERE
+        self.initial_lr = 1e-2  ####################################### YOUSEF HERE
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
@@ -98,7 +98,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         self.window_size = [[3, 5, 5], [3, 5, 5], [7, 10, 10], [3, 5, 5]]
         self.down_stride = [[1, 4, 4], [1, 8, 8], [2, 16, 16], [4, 32, 32]]
         self.deep_supervision = (
-            True  ####################################### YOUSEF HERE
+            False  ####################################### YOUSEF HERE
         )
 
     def initialize(self, training=True, force_load_plans=False):
@@ -243,9 +243,9 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             hyb_tf_proj_sizes=[32, 64, 128],
             hyb_tf_repeats=[1, 1, 1],
             hyb_tf_num_heads=[2, 4, 8],
-            hyb_tf_dropouts=0.0,
+            hyb_tf_dropouts=0.15,
             hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
-            hyb_vit_blocks="SSC",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
+            hyb_vit_blocks="XXL",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
             # hyb_vit_sandwich= False,
             hyb_skip_mode="cat",  # "sum" or "cat",
             hyb_arch_mode="residual",  # sequential, residual, parallel, collective,
