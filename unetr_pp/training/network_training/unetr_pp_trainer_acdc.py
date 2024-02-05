@@ -242,7 +242,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             hyb_cnn_dropouts=0.0,
             hyb_tf_proj_sizes=[32, 64, 128],
             hyb_tf_repeats=[1, 1, 1],
-            hyb_tf_num_heads=[2, 4, 8],
+            hyb_tf_num_heads=[4,4,4],
             hyb_tf_dropouts=0.15,
             hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
             hyb_vit_blocks="XXL",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,

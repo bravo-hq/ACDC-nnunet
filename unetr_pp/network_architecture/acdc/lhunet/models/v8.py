@@ -16,9 +16,7 @@ Concatenating skips
 Out with ViT
 """
 
-
 from unetr_pp.network_architecture.neural_network import SegmentationNetwork
-
 
 class LHUNet(SegmentationNetwork):
     def __init__(
@@ -338,14 +336,16 @@ class LHUNet(SegmentationNetwork):
         )
 
         if self.do_ds:
-            self.out_1 = get_conv_layer(
-                spatial_dims,
-                in_channels=dec_cnn_features[-2],
-                out_channels=out_channels,
-                kernel_size=1,
-                stride=1,
-                dropout=0,
-                conv_only=True,
+            self.out_1 = (
+                get_conv_layer(
+                    spatial_dims,
+                    in_channels=dec_cnn_features[-2],
+                    out_channels=out_channels,
+                    kernel_size=1,
+                    stride=1,
+                    dropout=0,
+                    conv_only=True,
+                ),
             )
             self.out_2 = get_conv_layer(
                 spatial_dims,
