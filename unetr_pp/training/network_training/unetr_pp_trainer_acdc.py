@@ -245,7 +245,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             hyb_tf_num_heads=[4,4,4],
             hyb_tf_dropouts=0.15,
             hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
-            hyb_vit_blocks="XXL",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
+            hyb_vit_blocks="WWU",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
             # hyb_vit_sandwich= False,
             hyb_skip_mode="cat",  # "sum" or "cat",
             hyb_arch_mode="residual",  # sequential, residual, parallel, collective,
