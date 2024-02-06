@@ -39,7 +39,7 @@ from torch.cuda.amp import autocast
 from unetr_pp.training.learning_rate.poly_lr import poly_lr
 from batchgenerators.utilities.file_and_folder_operations import *
 from unetr_pp.network_architecture.acdc.unetr_pp_acdc import UNETR_PP
-from unetr_pp.network_architecture.acdc.lhunet.models.v7 import LHUNet as MODEL
+from unetr_pp.network_architecture.acdc.lhunet.models.v7 import LHUNet as LHUNet_V7
 from fvcore.nn import FlopCountAnalysis
 
 
@@ -223,7 +223,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         #                              dims=[32, 64, 128, 256],
         #                              do_ds=True,
         #                              )
-        self.network = MODEL(
+        self.network = LHUNet_V7(
             spatial_shapes=self.crop_size,
             in_channels=self.input_channels,
             out_channels=self.num_classes,
@@ -240,12 +240,12 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             hyb_strides=[2, 2, 2],
             hyb_maxpools=[True, True, True],
             hyb_cnn_dropouts=0.0,
-            hyb_tf_proj_sizes=[32, 64, 128],
+            hyb_tf_proj_sizes=[128,64,32],
             hyb_tf_repeats=[1, 1, 1],
             hyb_tf_num_heads=[4,4,4],
             hyb_tf_dropouts=0.15,
             hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
-            hyb_vit_blocks="WWU",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
+            hyb_vit_blocks="SSC",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
             # hyb_vit_sandwich= False,
             hyb_skip_mode="cat",  # "sum" or "cat",
             hyb_arch_mode="residual",  # sequential, residual, parallel, collective,
