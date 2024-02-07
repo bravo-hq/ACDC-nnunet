@@ -72,7 +72,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 1e-2  ####################################### YOUSEF HERE
+        self.initial_lr = 0.007  ####################################### YOUSEF HERE
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
@@ -231,7 +231,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             # encoder params
             cnn_kernel_sizes=[5, 3],
             cnn_features=[16, 32],
-            cnn_strides=[[1, 2, 2], 2],
+            cnn_strides=[[1, 2, 2], [1, 2, 2]],
             cnn_maxpools=[False, True],
             cnn_dropouts=0.0,
             cnn_blocks="nn",  # n= resunet, d= deformconv, b= basicunet,
@@ -240,7 +240,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             hyb_strides=[2, 2, 2],
             hyb_maxpools=[True, True, True],
             hyb_cnn_dropouts=0.0,
-            hyb_tf_proj_sizes=[128,64,32],
+            hyb_tf_proj_sizes=[343,64,0],
             hyb_tf_repeats=[1, 1, 1],
             hyb_tf_num_heads=[4,4,4],
             hyb_tf_dropouts=0.15,
@@ -304,8 +304,8 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         )
         flops = FlopCountAnalysis(self.network, input)
         model_flops = flops.total()
-        print(f"Total trainable parameters: {round(n_parameters * 1e-6, 2)} M")
-        print(f"MAdds: {round(model_flops * 1e-9, 2)} G")
+        self.print_to_log_file(f"Total trainable parameters: {round(n_parameters * 1e-6, 2)} M")
+        self.print_to_log_file(f"MAdds: {round(model_flops * 1e-9, 2)} G")
 
     def initialize_optimizer_and_scheduler(self):
         assert self.network is not None, "self.initialize_network must be called first"
