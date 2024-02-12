@@ -482,6 +482,7 @@ def determine_postprocessing(
     p.close()
     p.join()
     print("done")
+    return max(before,after)
 
 
 def apply_postprocessing_to_folder(

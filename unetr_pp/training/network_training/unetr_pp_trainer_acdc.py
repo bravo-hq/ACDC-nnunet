@@ -306,6 +306,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         model_flops = flops.total()
         self.print_to_log_file(f"Total trainable parameters: {round(n_parameters * 1e-6, 2)} M")
         self.print_to_log_file(f"MAdds: {round(model_flops * 1e-9, 2)} G")
+        self.best_test_dice=0
 
     def initialize_optimizer_and_scheduler(self):
         assert self.network is not None, "self.initialize_network must be called first"
@@ -338,7 +339,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         self,
         do_mirroring: bool = True,
         use_sliding_window: bool = True,
-        step_size: float = 0.9, ####################################### YOUSEF HERE
+        step_size: float = 0.5, ####################################### YOUSEF HERE
         save_softmax: bool = True,
         use_gaussian: bool = True,
         overwrite: bool = True,
@@ -376,7 +377,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         do_mirroring: bool = True,
         mirror_axes: Tuple[int] = None,
         use_sliding_window: bool = True,
-        step_size: float = 0.9, ####################################### YOUSEF HERE
+        step_size: float = 0.5, ####################################### YOUSEF HERE
         use_gaussian: bool = True,
         pad_border_mode: str = "constant",
         pad_kwargs: dict = None,
@@ -873,11 +874,29 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         return continue_training
     
     def maybe_test(self):
-        pass
-        # if self.epoch>800 :
-        #     self.network.eval()
-        #     self.validate(save_softmax=True, validation_folder_name="test", debug=False, run_postprocessing_on_folds=True)
-        #     self.network.train()
+        if self.epoch>750 and self.all_val_eval_metrics[-1] > 0.925:
+            self.network.eval()
+            results=self.validate(
+                    do_mirroring = True,
+                    use_sliding_window = True,
+                    step_size = 0.99, ####################################### YOUSEF HERE
+                    save_softmax = False,
+                    use_gaussian = True,
+                    overwrite = True,
+                    validation_folder_name= "test_raw",
+                    debug = False,
+                    all_in_gpu = True,
+                    segmentation_export_kwargs = None,
+                    run_postprocessing_on_folds = True)
+            if results>self.best_test_dice:
+                self.save_checkpoint(
+                join(
+                    self.output_folder,
+                    f"model_ep_{(self.epoch+1):03d}_best_test_dice_{results:.5f}.model",
+                ))
+                self.best_test_dice=results
+                            
+            self.network.train()
 
     def run_training(self):
         """

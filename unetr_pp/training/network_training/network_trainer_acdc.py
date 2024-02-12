@@ -761,6 +761,7 @@ class NetworkTrainer_acdc(object):
         continue_training = self.manage_patience()
         return continue_training
     
+       
     def save_best_val_metric_model(self):
         if self.all_val_eval_metrics[-1] > self.best_val_metric:
             self.best_val_metric = self.all_val_eval_metrics[-1]
