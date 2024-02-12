@@ -72,7 +72,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 0.007  ####################################### YOUSEF HERE
+        self.initial_lr = 0.0035  ####################################### YOUSEF HERE
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
@@ -229,19 +229,19 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             out_channels=self.num_classes,
             do_ds=self.deep_supervision,
             # encoder params
-            cnn_kernel_sizes=[5, 3],
-            cnn_features=[16, 32],
+            cnn_kernel_sizes=[3, 3],
+            cnn_features=[8, 16],
             cnn_strides=[[1, 2, 2], [1, 2, 2]],
-            cnn_maxpools=[False, True],
+            cnn_maxpools=[True, True],
             cnn_dropouts=0.0,
             cnn_blocks="nn",  # n= resunet, d= deformconv, b= basicunet,
-            hyb_kernel_sizes=[3, 3, 3],
-            hyb_features=[32, 64, 128],
-            hyb_strides=[2, 2, 2],
+            hyb_kernel_sizes=[3, 3,3],
+            hyb_features=[16, 32, 64],
+            hyb_strides=[[1, 2, 2], 2, 2],
             hyb_maxpools=[True, True, True],
             hyb_cnn_dropouts=0.0,
-            hyb_tf_proj_sizes=[343,64,0],
-            hyb_tf_repeats=[1, 1, 1],
+            hyb_tf_proj_sizes=[64,32,0],
+            hyb_tf_repeats=[1, 1,1],
             hyb_tf_num_heads=[4,4,4],
             hyb_tf_dropouts=0.15,
             hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
@@ -258,7 +258,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             br_m_att_use=True,
             br_use_p_ttn_w=True,
             # decoder params
-            dec_hyb_tcv_kernel_sizes=[5, 5, 5],
+            dec_hyb_tcv_kernel_sizes=[5, 5,5],
             dec_cnn_tcv_kernel_sizes=[5, 7],
             dec_cnn_blocks=None,
             dec_tcv_bias=False,
@@ -338,7 +338,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         self,
         do_mirroring: bool = True,
         use_sliding_window: bool = True,
-        step_size: float = 0.5,
+        step_size: float = 0.9, ####################################### YOUSEF HERE
         save_softmax: bool = True,
         use_gaussian: bool = True,
         overwrite: bool = True,
@@ -376,7 +376,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         do_mirroring: bool = True,
         mirror_axes: Tuple[int] = None,
         use_sliding_window: bool = True,
-        step_size: float = 0.5,
+        step_size: float = 0.9, ####################################### YOUSEF HERE
         use_gaussian: bool = True,
         pad_border_mode: str = "constant",
         pad_kwargs: dict = None,
@@ -853,6 +853,9 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         :return:
         """
         super().on_epoch_end()
+        self.maybe_test()
+        
+        
         continue_training = self.epoch < self.max_num_epochs
 
         # it can rarely happen that the momentum of nnUNetTrainerV2 is too high for some dataset. If at epoch 100 the
@@ -868,6 +871,13 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
                     "0.95 and network weights have been reinitialized"
                 )
         return continue_training
+    
+    def maybe_test(self):
+        pass
+        # if self.epoch>800 :
+        #     self.network.eval()
+        #     self.validate(save_softmax=True, validation_folder_name="test", debug=False, run_postprocessing_on_folds=True)
+        #     self.network.train()
 
     def run_training(self):
         """
