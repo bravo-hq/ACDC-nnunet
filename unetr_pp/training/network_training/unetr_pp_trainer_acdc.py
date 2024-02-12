@@ -72,7 +72,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 0.0035  ####################################### YOUSEF HERE
+        self.initial_lr = 0.003  ####################################### YOUSEF HERE
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
@@ -230,20 +230,20 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             do_ds=self.deep_supervision,
             # encoder params
             cnn_kernel_sizes=[3, 3],
-            cnn_features=[8, 16],
+            cnn_features=[12, 16],
             cnn_strides=[[1, 2, 2], [1, 2, 2]],
             cnn_maxpools=[True, True],
             cnn_dropouts=0.0,
             cnn_blocks="nn",  # n= resunet, d= deformconv, b= basicunet,
             hyb_kernel_sizes=[3, 3,3],
-            hyb_features=[16, 32, 64],
+            hyb_features=[24, 32, 64],
             hyb_strides=[[1, 2, 2], 2, 2],
             hyb_maxpools=[True, True, True],
             hyb_cnn_dropouts=0.0,
             hyb_tf_proj_sizes=[64,32,0],
             hyb_tf_repeats=[1, 1,1],
-            hyb_tf_num_heads=[4,4,4],
-            hyb_tf_dropouts=0.15,
+            hyb_tf_num_heads=[4,4,8],
+            hyb_tf_dropouts=0.1,
             hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
             hyb_vit_blocks="SSC",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
             # hyb_vit_sandwich= False,
@@ -895,6 +895,8 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
                     f"model_ep_{(self.epoch+1):03d}_best_test_dice_{results:.5f}.model",
                 ))
                 self.best_test_dice=results
+                
+            self.print_to_log_file(f"Test Dice: {results:.5f} and Best Test Dice: {self.best_test_dice:.5f}")
                             
             self.network.train()
 

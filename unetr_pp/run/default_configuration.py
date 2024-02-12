@@ -70,7 +70,7 @@ def get_default_configuration(
     else:
         Stage = 0
     if task == "Task001_ACDC":
-        plans["plans_per_stage"][Stage]["batch_size"] = 8 ####################################### YOUSEF HERE
+        plans["plans_per_stage"][Stage]["batch_size"] = 4 ####################################### YOUSEF HERE
         plans["plans_per_stage"][Stage]["patch_size"] = np.array([16, 160, 160])
         pickle_file = open(plans_file, "wb")
         pickle.dump(plans, pickle_file)
