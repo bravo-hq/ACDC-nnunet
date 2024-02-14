@@ -15,7 +15,7 @@ __all__ = ["LHUNet"]
 Concatenating skips
 Out with ViT
 """
-from unetr_pp.network_architecture.neural_network import SegmentationNetwork
+from ....neural_network import SegmentationNetwork
 
 
 class LHUNet(SegmentationNetwork):
