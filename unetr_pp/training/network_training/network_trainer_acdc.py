@@ -532,10 +532,10 @@ class NetworkTrainer_acdc(object):
 
         if len(self.all_val_losses) == 0:
             self.best_loss = 1000
-            self.best_val_metric=-1
+            self.best_val_metric = -1
         else:
             self.best_loss = min(self.all_val_losses)
-            self.best_val_metric= max(self.all_val_eval_metrics)
+            self.best_val_metric = max(self.all_val_eval_metrics)
 
         while self.epoch < self.max_num_epochs:
             self.print_to_log_file("\nepoch: ", self.epoch)
@@ -754,14 +754,13 @@ class NetworkTrainer_acdc(object):
         self.save_best_val_loss_model()
 
         self.update_eval_criterion_MA()
-        
+
         self.save_best_val_metric_model()
-        
+
         self.maybe_update_lr()
         continue_training = self.manage_patience()
         return continue_training
-    
-       
+
     def save_best_val_metric_model(self):
         if self.all_val_eval_metrics[-1] > self.best_val_metric:
             self.best_val_metric = self.all_val_eval_metrics[-1]
@@ -784,8 +783,9 @@ class NetworkTrainer_acdc(object):
                     f"model_ep_{(self.epoch+1):03d}_best_val_metric_{self.all_val_eval_metrics[-1]:.5f}.model",
                 )
             )
-            self.print_to_log_file(f"best val metric model with dice {self.all_val_eval_metrics[-1]:.5f} saved!!!!!!!!!!!")
-            
+            self.print_to_log_file(
+                f"best val metric model with dice {self.all_val_eval_metrics[-1]:.5f} saved!!!!!!!!!!!"
+            )
 
     def save_best_val_loss_model(self):
         # save best loss model

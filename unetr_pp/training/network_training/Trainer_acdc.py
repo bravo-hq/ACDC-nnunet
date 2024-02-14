@@ -744,7 +744,7 @@ class Trainer_acdc(NetworkTrainer_acdc):
         self,
         do_mirroring: bool = True,
         use_sliding_window: bool = True,
-        step_size: float = 0.5, ######################################## YOUSEF HERE
+        step_size: float = 0.5,  ######################################## YOUSEF HERE
         save_softmax: bool = True,
         use_gaussian: bool = True,
         overwrite: bool = True,
@@ -917,7 +917,7 @@ class Trainer_acdc(NetworkTrainer_acdc):
             # classes and then rerun the evaluation. Those classes for which this resulted in an improved dice score will
             # have this applied during inference as well
             self.print_to_log_file("determining postprocessing")
-            after_results=determine_postprocessing(
+            after_results = determine_postprocessing(
                 self.output_folder,
                 self.gt_niftis_folder,
                 validation_folder_name,
@@ -1012,8 +1012,10 @@ class Trainer_acdc(NetworkTrainer_acdc):
         self.all_val_eval_metrics.append(avg_dc_per_class)
 
         self.print_to_log_file(
-            "Average global foreground Dice: ["+", ".join([f"{n*100:2.2f}" for n in global_dc_per_class])+"]"\
-                + f" avg:{100*avg_dc_per_class:2.3f}"
+            "Average global foreground Dice: ["
+            + ", ".join([f"{n*100:2.2f}" for n in global_dc_per_class])
+            + "]"
+            + f" avg:{100*avg_dc_per_class:2.3f}"
         )
         self.print_to_log_file(
             "(interpret this as an estimate for the Dice of the different classes. This is not "

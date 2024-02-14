@@ -134,7 +134,7 @@ class LHUNet(SegmentationNetwork):
             [st for _ in spatial_shapes] if not isinstance(st, list) else st
             for st in hyb_strides
         ]
-        
+
         # check dec params
         dec_hyb_skip_channels = hyb_features[::-1][1:] + cnn_features[::-1]
         dec_cnn_skip_channels = cnn_features[::-1][1:] + [init_features]

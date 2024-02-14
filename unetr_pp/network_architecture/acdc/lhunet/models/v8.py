@@ -17,6 +17,7 @@ Concatenating skips
 Out with ViT
 """
 
+
 class LHUNet(BaseBlock, SegmentationNetwork):
     def __init__(
         self,
@@ -375,8 +376,8 @@ class LHUNet(BaseBlock, SegmentationNetwork):
 
         if self.do_ds:
             return [
-                x, 
-                F.interpolate(self.out_1(dec_cnn_outs[-1]), scale_factor=0.5), 
-                F.interpolate(self.out_2(dec_cnn_outs[-2]), scale_factor=0.5)
+                x,
+                F.interpolate(self.out_1(dec_cnn_outs[-1]), scale_factor=0.5),
+                F.interpolate(self.out_2(dec_cnn_outs[-2]), scale_factor=0.5),
             ]
         return x
