@@ -258,6 +258,7 @@ def main():
             validation_folder_name=val_folder,
             run_postprocessing_on_folds=not disable_postprocessing_on_folds,
             overwrite=args.val_disable_overwrite,
+            all_in_gpu=True,
         )
 
 

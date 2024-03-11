@@ -72,7 +72,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 0.003  ####################################### YOUSEF HERE
+        self.initial_lr = 0.0005  ####################################### YOUSEF HERE
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
@@ -243,7 +243,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             hyb_tf_proj_sizes=[64, 32, 0],
             hyb_tf_repeats=[1, 1, 1],
             hyb_tf_num_heads=[4, 4, 4],
-            hyb_tf_dropouts=0.15,
+            hyb_tf_dropouts=0.1,
             hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
             hyb_vit_blocks="SSC",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
             # hyb_vit_sandwich= False,
@@ -259,7 +259,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             br_use_p_ttn_w=True,
             # decoder params
             dec_hyb_tcv_kernel_sizes=[5, 5, 5],
-            dec_cnn_tcv_kernel_sizes=[5, 7],
+            dec_cnn_tcv_kernel_sizes=[5, 5],
             dec_cnn_blocks=None,
             dec_tcv_bias=False,
             dec_hyb_tcv_bias=False,
@@ -287,7 +287,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
 
         if self.fine_tune:
             print("Loading pretrain weight")
-            pre_trained_path = "/cabinet/yousef/ACDC-nnunet/output_acdc_lhunet_res_coll_batch_8/unetr_pp/3d_fullres/Task001_ACDC/unetr_pp_trainer_acdc__unetr_pp_Plansv2.1/fold_0/originals/model_final_checkpoint.model"
+            pre_trained_path = "/home/say26747/Desktop/git/ACDC-nnunet/OUTPUT/test/unetr_pp/3d_fullres/Task001_ACDC/unetr_pp_trainer_acdc__unetr_pp_Plansv2.1/fold_0/model_best.model"
             saved_model = torch.load(pre_trained_path, map_location=torch.device("cpu"))
             self.network.load_state_dict(saved_model["state_dict"])
             print("Done loading pretrain weight")
@@ -875,7 +875,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         return continue_training
 
     def maybe_test(self):
-        if self.epoch > 750 and self.all_val_eval_metrics[-1] > 0.925:
+        if self.epoch > -1 and self.all_val_eval_metrics[-1] > 0.925:
             self.network.eval()
             results = self.validate(
                 do_mirroring=True,
