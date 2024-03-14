@@ -1,7 +1,7 @@
 #!/bin/sh
 
-DATASET_PATH=../DATASET_Synapse
-CHECKPOINT_PATH=../unetr_pp/evaluation/unetr_pp_synapse_checkpoint
+DATASET_PATH=/cabinet/dataset/Synapse/NN-Unet/DATASET_Synapse_unetr_pp
+CHECKPOINT_PATH=/cabinet/yousef/Synapse-nnunet/output_synapse_unetr_pp
 
 export PYTHONPATH=.././
 export RESULTS_FOLDER="$CHECKPOINT_PATH"

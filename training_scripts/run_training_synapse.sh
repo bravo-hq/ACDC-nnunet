@@ -1,9 +1,9 @@
 #!/bin/sh
 
-DATASET_PATH=../DATASET_Synapse
+DATASET_PATH=/cabinet/dataset/Synapse/NN-Unet/DATASET_Synapse_unetr_pp
 
 export PYTHONPATH=.././
-export RESULTS_FOLDER=../output_synapse
+export RESULTS_FOLDER=/cabinet/yousef/Synapse-nnunet/output_synapse_unetr_pp
 export unetr_pp_preprocessed="$DATASET_PATH"/unetr_pp_raw/unetr_pp_raw_data/Task02_Synapse
 export unetr_pp_raw_data_base="$DATASET_PATH"/unetr_pp_raw
 
