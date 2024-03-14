@@ -299,6 +299,7 @@ class unetr_pp_trainer_synapse(Trainer_synapse):
         model_flops = flops.total()
         self.print_to_log_file(f"Total trainable parameters: {round(n_parameters * 1e-6, 2)} M")
         self.print_to_log_file(f"MAdds: {round(model_flops * 1e-9, 2)} G")
+        self.best_test_dice = 0
 
     def initialize_optimizer_and_scheduler(self):
         assert self.network is not None, "self.initialize_network must be called first"
