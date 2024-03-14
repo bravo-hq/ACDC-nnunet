@@ -39,6 +39,7 @@ from torch import nn
 from torch.cuda.amp import autocast
 from unetr_pp.training.learning_rate.poly_lr import poly_lr
 from batchgenerators.utilities.file_and_folder_operations import *
+from unetr_pp.network_architecture.acdc.lhunet.models.v7 import LHUNet as LHUNet_V7
 from fvcore.nn import FlopCountAnalysis
 
 
@@ -71,11 +72,13 @@ class unetr_pp_trainer_synapse(Trainer_synapse):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 1e-2
+        self.initial_lr = 0.003 ######################## Yousef here
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
         self.load_pretrain_weight = False
+        self.fine_tune = False  ####################################### YOUSEF HERE
+
 
         self.load_plans_file()
 
@@ -89,7 +92,7 @@ class unetr_pp_trainer_synapse(Trainer_synapse):
         self.num_heads = [6, 12, 24, 48]
         self.embedding_patch_size = [2, 4, 4]
         self.window_size = [4, 4, 8, 4]
-        self.deep_supervision = True
+        self.deep_supervision = False ############################# Yousef Here
 
     def initialize(self, training=True, force_load_plans=False):
         """
@@ -202,20 +205,86 @@ class unetr_pp_trainer_synapse(Trainer_synapse):
         :return:
         """
 
-        self.network = UNETR_PP(
+        # self.network = UNETR_PP(
+        #     in_channels=self.input_channels,
+        #     out_channels=self.num_classes,
+        #     img_size=self.crop_size,
+        #     feature_size=16,
+        #     num_heads=4,
+        #     depths=[3, 3, 3, 3],
+        #     dims=[32, 64, 128, 256],
+        #     do_ds=True,
+        # )
+        
+        self.network = LHUNet_V7(
+            spatial_shapes=self.crop_size,
             in_channels=self.input_channels,
             out_channels=self.num_classes,
-            img_size=self.crop_size,
-            feature_size=16,
-            num_heads=4,
-            depths=[3, 3, 3, 3],
-            dims=[32, 64, 128, 256],
-            do_ds=True,
+            do_ds=self.deep_supervision,
+            # encoder params
+            cnn_kernel_sizes=[3, 3],
+            cnn_features=[8, 16],
+            cnn_strides=[[1, 2, 2], 2],
+            cnn_maxpools=[True, True],
+            cnn_dropouts=0.0,
+            cnn_blocks="nn",  # n= resunet, d= deformconv, b= basicunet,
+            hyb_kernel_sizes=[3, 3, 3],
+            hyb_features=[16, 32, 64],
+            hyb_strides=[2, 2, 2],
+            hyb_maxpools=[True, True, True],
+            hyb_cnn_dropouts=0.0,
+            hyb_tf_proj_sizes=[64, 32, 0],
+            hyb_tf_repeats=[1, 1, 1],
+            hyb_tf_num_heads=[4, 4, 4],
+            hyb_tf_dropouts=0.1,
+            hyb_cnn_blocks="nnn",  # n= resunet, d= deformconv, b= basicunet,
+            hyb_vit_blocks="SSC",  # s= dlka_special_v2, S= dlka_sp_seq, c= dlka_channel_v2, C= dlka_ch_seq,
+            # hyb_vit_sandwich= False,
+            hyb_skip_mode="cat",  # "sum" or "cat",
+            hyb_arch_mode="residual",  # sequential, residual, parallel, collective,
+            hyb_res_mode="sum",  # "sum" or "cat",
+            # bridge
+            br_use=True,
+            br_skip_levels=[0, 1, 2, 3],
+            br_c_attn_use=True,
+            br_s_att_use=True,
+            br_m_att_use=True,
+            br_use_p_ttn_w=True,
+            # decoder params
+            dec_hyb_tcv_kernel_sizes=[5, 5, 5],
+            dec_cnn_tcv_kernel_sizes=[5, 5],
+            dec_cnn_blocks=None,
+            dec_tcv_bias=False,
+            dec_hyb_tcv_bias=False,
+            dec_hyb_kernel_sizes=None,
+            dec_hyb_features=None,
+            dec_hyb_cnn_dropouts=None,
+            dec_hyb_tf_proj_sizes=None,
+            dec_hyb_tf_repeats=None,
+            dec_hyb_tf_num_heads=None,
+            dec_hyb_tf_dropouts=None,
+            dec_cnn_kernel_sizes=None,
+            dec_cnn_features=None,
+            dec_cnn_dropouts=None,
+            dec_hyb_cnn_blocks=None,
+            dec_hyb_vit_blocks=None,
+            # dec_hyb_vit_sandwich= None,
+            dec_hyb_skip_mode=None,
+            dec_hyb_arch_mode="collective",  # sequential, residual, parallel, collective, sequential-lite,
+            dec_hyb_res_mode=None,
         )
 
         if torch.cuda.is_available():
             self.network.cuda()
         self.network.inference_apply_nonlin = softmax_helper
+        
+        if self.fine_tune:
+            print("Loading pretrain weight")
+            pre_trained_path = "/home/say26747/Desktop/git/ACDC-nnunet/OUTPUT/test/unetr_pp/3d_fullres/Task001_ACDC/unetr_pp_trainer_acdc__unetr_pp_Plansv2.1/fold_0/model_best.model"
+            saved_model = torch.load(pre_trained_path, map_location=torch.device("cpu"))
+            self.network.load_state_dict(saved_model["state_dict"])
+            print("Done loading pretrain weight")
+
         # Print the network parameters & Flops
         n_parameters = sum(
             p.numel() for p in self.network.parameters() if p.requires_grad
@@ -228,8 +297,8 @@ class unetr_pp_trainer_synapse(Trainer_synapse):
         )
         flops = FlopCountAnalysis(self.network, input)
         model_flops = flops.total()
-        print(f"Total trainable parameters: {round(n_parameters * 1e-6, 2)} M")
-        print(f"MAdds: {round(model_flops * 1e-9, 2)} G")
+        self.print_to_log_file(f"Total trainable parameters: {round(n_parameters * 1e-6, 2)} M")
+        self.print_to_log_file(f"MAdds: {round(model_flops * 1e-9, 2)} G")
 
     def initialize_optimizer_and_scheduler(self):
         assert self.network is not None, "self.initialize_network must be called first"
@@ -605,6 +674,8 @@ class unetr_pp_trainer_synapse(Trainer_synapse):
         :return:
         """
         super().on_epoch_end()
+        self.maybe_test()
+        
         continue_training = self.epoch < self.max_num_epochs
 
         # it can rarely happen that the momentum of nnUNetTrainerV2 is too high for some dataset. If at epoch 100 the
@@ -620,6 +691,37 @@ class unetr_pp_trainer_synapse(Trainer_synapse):
                     "0.95 and network weights have been reinitialized"
                 )
         return continue_training
+    
+    def maybe_test(self):
+        if self.epoch > 750 and self.all_val_eval_metrics[-1] > 0.86:
+            self.network.eval()
+            results = self.validate(
+                do_mirroring=True,
+                use_sliding_window=True,
+                step_size=0.99,  ####################################### YOUSEF HERE
+                save_softmax=False,
+                use_gaussian=True,
+                overwrite=True,
+                validation_folder_name="test_raw",
+                debug=False,
+                all_in_gpu=True,
+                segmentation_export_kwargs=None,
+                run_postprocessing_on_folds=True,
+            )
+            if results > self.best_test_dice:
+                self.save_checkpoint(
+                    join(
+                        self.output_folder,
+                        f"model_ep_{(self.epoch+1):03d}_best_test_dice_{results:.5f}.model",
+                    )
+                )
+                self.best_test_dice = results
+
+            self.print_to_log_file(
+                f"Test Dice: {results:.5f} and Best Test Dice: {self.best_test_dice:.5f}"
+            )
+
+            self.network.train()
 
     def run_training(self):
         """

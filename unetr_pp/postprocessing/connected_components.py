@@ -401,9 +401,9 @@ def determine_postprocessing(
         validation_result_PP_test = load_json(join(folder_per_class, "summary.json"))[
             "results"
         ]["mean"]
-
-        class_check = [1, 2, 3]
-        classes_dice = []
+        
+        class_check=[1,11,2,3,4,6,7,8]
+        classes_dice=[]
         for c in classes:
             dc_raw = old_res[str(c)]["Dice"]
             dc_pp = validation_result_PP_test[str(c)]["Dice"]

@@ -72,7 +72,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
             fp16,
         )
         self.max_num_epochs = 1000
-        self.initial_lr = 0.0005  ####################################### YOUSEF HERE
+        self.initial_lr = 0.003  ####################################### YOUSEF HERE
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
         self.pin_memory = True
@@ -875,7 +875,7 @@ class unetr_pp_trainer_acdc(Trainer_acdc):
         return continue_training
 
     def maybe_test(self):
-        if self.epoch > -1 and self.all_val_eval_metrics[-1] > 0.925:
+        if self.epoch > 750 and self.all_val_eval_metrics[-1] > 0.925:
             self.network.eval()
             results = self.validate(
                 do_mirroring=True,

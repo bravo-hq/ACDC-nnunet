@@ -38,7 +38,7 @@ from abc import abstractmethod
 from datetime import datetime
 from tqdm import trange
 from unetr_pp.utilities.to_torch import maybe_to_torch, to_cuda
-
+from glob import glob
 
 class NetworkTrainer_synapse(object):
     def __init__(self, deterministic=True, fp16=False):
@@ -128,7 +128,7 @@ class NetworkTrainer_synapse(object):
         self.save_latest_only = False  # if false it will not store/overwrite _latest but separate files each
         # time an intermediate checkpoint is created
         self.save_intermediate_checkpoints = (
-            False  # whether or not to save checkpoint_latest
+            True  # whether or not to save checkpoint_latest
         )
         self.save_best_checkpoint = True  # whether or not to save the best checkpoint according to self.best_val_eval_criterion_MA
         self.save_final_checkpoint = True  # whether or not to save the final checkpoint
@@ -529,6 +529,13 @@ class NetworkTrainer_synapse(object):
 
         if not self.was_initialized:
             self.initialize(True)
+            
+        if len(self.all_val_losses) == 0:
+            self.best_loss = 1000
+            self.best_val_metric = -1
+        else:
+            self.best_loss = min(self.all_val_losses)
+            self.best_val_metric = max(self.all_val_eval_metrics)
 
         while self.epoch < self.max_num_epochs:
             self.print_to_log_file("\nepoch: ", self.epoch)
@@ -744,10 +751,67 @@ class NetworkTrainer_synapse(object):
 
         self.maybe_save_checkpoint()
 
+        self.save_best_val_loss_model()
+
         self.update_eval_criterion_MA()
+
+        self.save_best_val_metric_model()
+
         self.maybe_update_lr()
         continue_training = self.manage_patience()
         return continue_training
+    
+    def save_best_val_metric_model(self):
+        if self.all_val_eval_metrics[-1] > self.best_val_metric:
+            self.best_val_metric = self.all_val_eval_metrics[-1]
+            # remove old best loss model
+            if self.epoch < 700:
+                path = glob(
+                    join(self.output_folder, f"model_ep_*_best_val_metric_*.model")
+                )
+                path_pkl = glob(
+                    join(self.output_folder, f"model_ep_*_best_val_metric_*.pkl")
+                )
+                for p in path:
+                    os.remove(p)
+                for p in path_pkl:
+                    os.remove(p)
+
+            self.save_checkpoint(
+                join(
+                    self.output_folder,
+                    f"model_ep_{(self.epoch+1):03d}_best_val_metric_{self.all_val_eval_metrics[-1]:.5f}.model",
+                )
+            )
+            self.print_to_log_file(
+                f"best val metric model with dice {self.all_val_eval_metrics[-1]:.5f} saved!!!!!!!!!!!"
+            )
+
+    def save_best_val_loss_model(self):
+        # save best loss model
+        if self.all_val_losses[-1] < self.best_loss:
+            self.best_loss = self.all_val_losses[-1]
+            # remove old best loss model
+            if self.epoch < 700:
+                path = glob(
+                    join(self.output_folder, f"model_ep_*_best_val_loss_*.model")
+                )
+                path_pkl = glob(
+                    join(self.output_folder, f"model_ep_*_best_val_loss_*.pkl")
+                )
+                for p in path:
+                    os.remove(p)
+                for p in path_pkl:
+                    os.remove(p)
+
+            self.save_checkpoint(
+                join(
+                    self.output_folder,
+                    f"model_ep_{(self.epoch+1):03d}_best_val_loss_{self.all_val_losses[-1]:.5f}.model",
+                )
+            )
+            self.print_to_log_file("best val loss model saved!")
+
 
     def update_train_loss_MA(self):
         if self.train_loss_MA is None:
