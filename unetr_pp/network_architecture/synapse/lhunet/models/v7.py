@@ -17,7 +17,7 @@ Out with ViT
 """
 from ....neural_network import SegmentationNetwork
 
-
+# class LHUNet(BaseBlock,SegmentationNetwork):
 class LHUNet(SegmentationNetwork):
     def __init__(
         self,

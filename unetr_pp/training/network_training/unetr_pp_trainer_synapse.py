@@ -39,7 +39,7 @@ from torch import nn
 from torch.cuda.amp import autocast
 from unetr_pp.training.learning_rate.poly_lr import poly_lr
 from batchgenerators.utilities.file_and_folder_operations import *
-from unetr_pp.network_architecture.acdc.lhunet.models.v7 import LHUNet as LHUNet_V7
+from unetr_pp.network_architecture.synapse.lhunet.models.v7 import LHUNet as LHUNet_V7
 from fvcore.nn import FlopCountAnalysis
 
 

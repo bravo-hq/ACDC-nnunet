@@ -640,7 +640,7 @@ class NetworkTrainer_acdc(object):
         :return:
         """
         if self.save_intermediate_checkpoints and (
-            self.epoch % self.save_every == (self.save_every - 1) and (self.epoch > 400)
+            self.epoch % self.save_every == (self.save_every - 1) and (self.epoch > 500)
         ):
             self.print_to_log_file("saving scheduled checkpoint file...")
             if not self.save_latest_only:

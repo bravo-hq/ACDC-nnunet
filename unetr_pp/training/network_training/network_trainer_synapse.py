@@ -124,7 +124,7 @@ class NetworkTrainer_synapse(object):
             self.use_progress_bar = bool(int(os.environ["nnformer_use_progress_bar"]))
 
         ################# Settings for saving checkpoints ##################################
-        self.save_every = 50
+        self.save_every = 60
         self.save_latest_only = False  # if false it will not store/overwrite _latest but separate files each
         # time an intermediate checkpoint is created
         self.save_intermediate_checkpoints = (
@@ -640,7 +640,7 @@ class NetworkTrainer_synapse(object):
         :return:
         """
         if self.save_intermediate_checkpoints and (
-            self.epoch % self.save_every == (self.save_every - 1)
+            self.epoch % self.save_every == (self.save_every - 1) and (self.epoch > 500)
         ):
             self.print_to_log_file("saving scheduled checkpoint file...")
             if not self.save_latest_only:
